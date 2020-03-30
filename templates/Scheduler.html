@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+   
+<script>
+"use strict";
+function byId(e){return document.getElementById(e);}
+function newEl(tag){return document.createElement(tag);}
+
+window.addEventListener('load', onDocLoaded, false);
+
+function onDocLoaded()
+{
+    byId('goBtn').addEventListener('click', onGoBtnClicked, false);
+}
+
+function onCellClicked(evt)
+{
+    alert( this.innerHTML );
+}
+
+function onGoBtnClicked(evt)
+{
+    byId('tblTgt').innerHTML = '';
+    var nCols = byId('inputX').value;
+    var nRows = byId('inputY').value;
+
+    var tbl, curRow, curCell;
+    tbl = newEl('table');
+    var x, y;
+    for (y=0; y<nRows; y++)
+    {
+        curRow = newEl('tr');
+        tbl.appendChild(curRow);
+
+        for (x=0; x<nCols; x++)
+        {
+            curCell = newEl('td');
+            curCell.addEventListener('click', onCellClicked, false);
+            curCell.innerText = "[" + x + "," + y + "]";
+            curRow.appendChild(curCell);
+        }
+    }
+    byId('tblTgt').appendChild(tbl);
+}
+
+</script>
+
+<style>
+
+</style>
+</head>
+<body>
+    Number of machines:<input type="text" name="enter" class="enter" value="" id="inputX"/><br>
+    Number of jobs:<input type="text" name="enter" class="enter" value="" id="inputY"/><br>
+    <button id='goBtn'>click</button>
+    <hr>
+    <div id='tblTgt'></div>
+</body>
+</html>

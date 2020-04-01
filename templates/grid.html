@@ -245,124 +245,101 @@
         min-height: 100%;
         min-width: 100%;
         border-radius: 0;
+      }
+      .modal-body {
+        overflow-x: auto;
       }       
     </style>
 </head>
 <body>
-    <div class="topnav" id="myTopnav">
-        <a href="{{url_for('home')}}">Home</a>
-        <a href="{{url_for('manual')}}" class="active">Manual input</a>
-        <a href="#contact">Load from file</a>
-        <a href="#about">About</a>
-        <a href="javascript:void(0);" class="icon" onclick="myFunction()">
-          <i class="fa fa-bars"></i>
-        </a>
-      </div>
-    <div class="input">        
-          <label for="inputX">Number of machines:</label>
-          <input type="number" name="enter" class="enter" value="" id="inputX"/><br>
-          <label for="inputY">Number of jobs:</label>
-          <input type="number" name="enter" class="enter" value="" id="inputY"/><br>
-          <button id='goBtn' onclick="fill_div(2,2)">click</button>       
-    </div>   
-    <div id="data">
-        <table id="input_data" style="width:100%"></table>
-    </div>
-    <br> 
-    <div id="result">
-     
-  </div>  
-     
-    <script>
-        function fill_div(c,r)
+  <div class="topnav" id="myTopnav">
+    <a href="{{url_for('home')}}">Home</a>
+    <a href="{{url_for('manual')}}" class="active">Manual input</a>
+    <a href="#contact">Load from file</a>
+    <a href="#about">About</a>
+    <a href="javascript:void(0);" class="icon" onclick="myFunction()">
+      <i class="fa fa-bars"></i>
+    </a>
+  </div>
+  <div class="input">        
+        <label for="inputX">Number of machines:</label>
+        <input type="number" name="enter" class="enter" value="" id="inputX"/><br>
+        <label for="inputY">Number of jobs:</label>
+        <input type="number" name="enter" class="enter" value="" id="inputY"/><br>
+        <button id='goBtn' onclick="fill_div(2,2)">click</button>       
+  </div>   
+  <div id="data">
+      <table id="input_data" style="width:100%"></table>
+  </div>
+  <br> 
+  <script>
+    function fill_div(c,r) {
+      var machines_number=$("#inputX").val();
+        var jobs_number=$("#inputY").val(); 
+        
+        if(machines_number=="" || jobs_number=="")  
         {
-            var machines_number=$("#inputX").val();
-            var jobs_number=$("#inputY").val(); 
-            
-            if(machines_number=="" || jobs_number=="")  
-            {
-                $("#myModal").modal();
-            }  else{   
-            var tbl=document.getElementById("input_data");
-            while(tbl.hasChildNodes())
-            {
-                tbl.removeChild(tbl.firstChild);
+            $("#myModal").modal();
+        }  else{   
+        var tbl=document.getElementById("input_data");
+        while(tbl.hasChildNodes())
+        {
+            tbl.removeChild(tbl.firstChild);
+        }
+        var header=document.createElement("tr");
+        var empty_th=document.createElement("th")
+        
+        var btn=document.createElement("button")
+        btn.innerHTML="Calculate";
+        btn.setAttribute("type","button")
+        btn.setAttribute("data-toggle","modal");
+        btn.setAttribute("data-target","table_modal");
+        
+        btn.addEventListener("click", function(){
+          var array = []; //your array
+          var rows = document.getElementById("input_data").getElementsByTagName("tr");
+          for(var i = 0; i < rows.length; i++) {
+            var array1=[]
+            var cols=rows[i].getElementsByTagName("td")
+            for(var j=0;j<cols.length;j++){
+              if(cols[j].innerHTML!="" && cols[j].innerHTML!="0"){
+                array1.push(cols[j].innerHTML);
+              }
             }
-            var header=document.createElement("tr");
-            var empty_th=document.createElement("th")
-            
-            var btn=document.createElement("button")
-            btn.innerHTML="Calculate";
-            btn.setAttribute("type","button")
-            btn.setAttribute("data-toggle","modal");
-            btn.setAttribute("data-target","table_modal");
-            
-            btn.addEventListener("click", function(){
-              var array = []; //your array
-var rows = document.getElementById("input_data").getElementsByTagName("tr");
-
-for(var i = 0; i < rows.length; i++) {
-  var array1=[]
-  var cols=rows[i].getElementsByTagName("td")
-  for(var j=0;j<cols.length;j++){
-    if(cols[j].innerHTML!="" && cols[j].innerHTML!="0")
-    array1.push(cols[j].innerHTML);
-    
-  }
-  array.push(array1)
-}
-var infos={data:array};
-                $.ajax({
-                    dataType: 'json',
-                    type:'post',
-                    url: "http://127.0.0.1:5000/jobshop/manual",
-                    contentType: "application/json; charset=utf-8",
-                    data: JSON.stringify(infos),
-                    success: function(resp){
-                     var time=resp["time"]
-                     
-                      var tbl1=document.getElementById("res_data");
-                      while(tbl1.hasChildNodes())
-            {
+            array.push(array1)
+          }
+          var infos={data:array};
+          $.ajax({
+            dataType: 'json',
+            type:'post',
+            url: "http://127.0.0.1:5000/jobshop/manual",
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(infos),
+            success: function(resp){
+              var time=resp["time"]
+              var tbl1=document.getElementById("res_data");
+              while(tbl1.hasChildNodes()) {
                 tbl1.removeChild(tbl1.firstChild);
-            }
-           /*  var tr1=document.createElement("tr");
-            var th1=document.createElement("th");
-                th1.setAttribute("scope","row");
-                
-                tr1.appendChild(th1);
-                for(j=0;j<time;j++)
-                {
-                    var td1=document.createElement("td");
-                    td1.innerHTML=j+1
-                    tr1.appendChild(td1);
-                }
-                tbl1.appendChild(tr1) */
-                      for(i=0;i<+jobs_number+ +1;i++)
-            {
+              }
+              for(i=0;i<+jobs_number+ +1;i++) {
                 var tr=document.createElement("tr");
                 var th=document.createElement("th");
                 th.setAttribute("scope","row");
-                
-                if(i>0)
-                th.innerHTML="Job "+i;
-                tr.appendChild(th);
-                for(j=0;j<time;j++)
-                {
-                    var td=document.createElement("td");
-                    
-                    if(i==0)
-                    {
-                      td.setAttribute("class","ff")
-                      td.innerHTML=j
-                    }
-                    tr.appendChild(td);
+                if(i>0) {
+                  th.innerHTML="Job "+i;
                 }
-                
+                tr.appendChild(th);
+                for(j=0;j<time;j++) {
+                  var td=document.createElement("td");
+                  if(i==0) {
+                    td.setAttribute("class","ff")
+                    td.innerHTML=j
+                  }
+                  tr.appendChild(td);
+                }
                 tbl1.appendChild(tr);
             }
             var rows1 = document.getElementById("res_data").getElementsByTagName("tr");
-            alert("----"+rows1.length)
             var couleurs=[];
             for(c=0;c<machines_number;c++)
             {
@@ -372,67 +349,25 @@ var infos={data:array};
             for(var i = 0; i < rows1.length; i++) {
               if (i>0)
               {
-            var x=resp["data"][i-1]
-            alert(x)
-            var eff=0
-            for(l=0;l<x.length;l++)
-            {
-              var cols=rows1[i].getElementsByTagName("td")
-            var start=x[l][2];
-            var duration=x[l][3];
-            var mach=x[l][1];
-            var mch=parseInt(mach.replace("Mach",""),10)
-            
-            
-            
-            //var ti=0
-            for(k=start-eff;k<start+duration;k++)
-            {
-              
-              /*for(l=start-eff;l<start+duration;l++)
-              {*/
-                cols[k].style.backgroundColor=couleurs[mch]
-             /* }              
-              cols[k].setAttribute("colspan",duration)
-              if(ti==0)
-              {for(t=1;t<duration;t++)
-              {cols[k+1].remove()
-              eff++;
-              }}
-              ti++
-              break*/
-            
-              
-              
-              
+                var x=resp["data"][i-1]
+                var eff=0
+                for(l=0;l<x.length;l++) {
+                  var cols=rows1[i].getElementsByTagName("td")
+                  var start=x[l][2];
+                  var duration=x[l][3];
+                  var mach=x[l][1];
+                  var mch=parseInt(mach.replace("Mach",""),10)
+                  for(k=start-eff;k<start+duration;k++) {
+                    cols[k].style.backgroundColor=couleurs[mch]
+                  }
+                }
+              }
             }
-            
-            
-            // cols[start].colSpan= duration;
-            
-            // cols[start].colSpan= duration;
-            
-            //cols[start].innerHTML=mach
-            //alert(i)
-          }}
-          
-            }
-           /* var rows2 = document.getElementById("res_data").getElementsByTagName("tr");
-            for(r=0;r<rows2.length;r++)
-            {
-            var cols2=rows2[r].getElementsByTagName("td")
-            var diff=time-cols2.length
-            alert(diff)
-            for(ii=0;ii<diff;ii++)
-            cols.pop()}*/
             $("#opt_time").html(time)
             $("#table_modal").modal();
-
             }
-                });
-
             });
-           
+            });
             empty_th.appendChild(btn);
             header.appendChild(empty_th);
             for(i=0;i<machines_number;i++)
@@ -459,8 +394,7 @@ var infos={data:array};
                 }
                 tbl.appendChild(tr);
             }
-            $('#input_data').find('td').each(function()
-        {
+            $('#input_data').find('td').each(function(){
             $(this).click(function() {
                 $('table td').not($(this)).prop('contenteditable', false);
                 $(this).prop('contenteditable', true);

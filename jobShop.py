@@ -12,16 +12,18 @@ class JobShop:
         pass
     def MinimalJobshopSat(self,jobs_data):
         """Minimal jobshop problem."""
+        aff=[]
         # Create the model.
         model = cp_model.CpModel()
 
-        jobs_data = [  # task = (machine_id, processing_time).
+        """ jobs_data = [  # task = (machine_id, processing_time).
             [(0, 3), (1, 2), (2, 2)],  # Job0
             [(0, 2), (2, 1), (1, 4)],  # Job1
             [(1, 4), (2, 3)]  # Job2
-        ]
+        ] """
 
-        machines_count = 1 + max(task[0] for job in jobs_data for task in job)
+        #print(type(max(task[0] for job in jobs_data for task in job)),max(task[0] for job in jobs_data for task in job))
+        machines_count = 1 + int(max(task[0] for job in jobs_data for task in job))
         all_machines = range(machines_count)
 
         # Computes horizon dynamically as the sum of all durations.
@@ -87,31 +89,64 @@ class JobShop:
 
             # Create per machine output lines.
             output = ''
+            
             for machine in all_machines:
+                
                 # Sort by starting time.
                 assigned_jobs[machine].sort()
                 sol_line_tasks = 'Machine ' + str(machine) + ': '
+                
                 sol_line = '           '
 
                 for assigned_task in assigned_jobs[machine]:
+                    aff1=[]
+                    #aff1.append(machine)
                     name = 'job_%i_%i' % (assigned_task.job, assigned_task.index)
+                    
                     # Add spaces to output to align columns.
                     sol_line_tasks += '%-10s' % name
+                    aff1.append(assigned_task.job)
+                    aff1.append("Mach"+str(machine))
+                    #aff1.append(assigned_task.index)
 
                     start = assigned_task.start
                     duration = assigned_task.duration
+                    aff1.append(assigned_task.start)
+                    aff1.append(duration)
                     sol_tmp = '[%i,%i]' % (start, start + duration)
                     # Add spaces to output to align columns.
                     sol_line += '%-10s' % sol_tmp
+                    
+                    aff.append(aff1)
+                    
 
+                
+                
+                
                 sol_line += '\n'
                 sol_line_tasks += '\n'
                 output += sol_line_tasks
                 output += sol_line
 
             # Finally print the solution found.
-            print('Optimal Schedule Length: %i' % solver.ObjectiveValue())
-            print(output)
+            print('Optimal Schedule Length: %i' % solver.ObjectiveValue(),jobs_data)
+            #print(output)
+            
+            nb_job=len(jobs_data)
+
+            ou=[]
+            for i in range(nb_job):
+                o=[]
+                for j in range(len(aff)):
+                    if aff[j][0]==i:
+                        o.append(aff[j])
+                ou.append(o)
+            
+            print(ou)
+            return ou,solver.ObjectiveValue()
+
+
+
 
 
 

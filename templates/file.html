@@ -370,8 +370,8 @@
         var btn=document.createElement("button")
         btn.innerHTML="Calculate";
         btn.setAttribute("type","button")
-        btn.setAttribute("data-toggle","modal");
-        btn.setAttribute("data-target","table_modal");
+        // btn.setAttribute("data-toggle","modal");
+        // btn.setAttribute("data-target","table_modal");
         
         btn.addEventListener("click", function(){
           var array = []; //your array
@@ -439,7 +439,7 @@
 
                     $("#opt_time").html(time)
                      drawChart(chart_data)
-            $("#table_modal").modal();            
+                  
            
                  
                  
@@ -510,13 +510,7 @@
 		</div>
 	</div>
 </div>  
-<div id="table_modal" class="modal fade bd-example-modal-lg" tabindex="-1" role="document" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-  <div class="modal-dialog  modal-xl">
-    <div class="modal-content">
-      <div class="modal-header">				
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"><span>&times;</span></button>
-      </div>
-      <div class="modal-body">
+
 				<h4>Result: </h4>	
 				<p>Temps optimal: <span id="opt_time"></span></p>
 				<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
@@ -552,10 +546,7 @@ var chartwidth = $('#chartt').width;
      
 
 
-      </div>
-    </div>
-  </div>
-</div> 
+    
 <div id="chart_wrapper">
 <div id="chartt" ></div>
 </div>   

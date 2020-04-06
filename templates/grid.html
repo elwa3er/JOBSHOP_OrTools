@@ -317,54 +317,46 @@
             data: JSON.stringify(infos),
             success: function(resp){
               var time=resp["time"]
-              var tbl1=document.getElementById("res_data");
-              while(tbl1.hasChildNodes()) {
-                tbl1.removeChild(tbl1.firstChild);
-              }
-              for(i=0;i<+jobs_number+ +1;i++) {
-                var tr=document.createElement("tr");
-                var th=document.createElement("th");
-                th.setAttribute("scope","row");
-                if(i>0) {
-                  th.innerHTML="Job "+i;
-                }
-                tr.appendChild(th);
-                for(j=0;j<time;j++) {
-                  var td=document.createElement("td");
-                  if(i==0) {
-                    td.setAttribute("class","ff")
-                    td.innerHTML=j
-                  }
-                  tr.appendChild(td);
-                }
-                tbl1.appendChild(tr);
-            }
-            var rows1 = document.getElementById("res_data").getElementsByTagName("tr");
-            var couleurs=[];
-            for(c=0;c<machines_number;c++)
-            {
-              var cc=getRandomColor();
-              couleurs.push(cc)
-            }
-            for(var i = 0; i < rows1.length; i++) {
-              if (i>0)
-              {
-                var x=resp["data"][i-1]
-                var eff=0
-                for(l=0;l<x.length;l++) {
-                  var cols=rows1[i].getElementsByTagName("td")
-                  var start=x[l][2];
-                  var duration=x[l][3];
-                  var mach=x[l][1];
-                  var mch=parseInt(mach.replace("Mach",""),10)
-                  for(k=start-eff;k<start+duration;k++) {
-                    cols[k].style.backgroundColor=couleurs[mch]
-                  }
-                }
-              }
-            }
-            $("#opt_time").html(time)
-            $("#table_modal").modal();
+                           
+             
+                //[ 'Magnolia Room', 'Beginning JavaScript',       new Date(0,0,0,12,0,0),  new Date(0,0,0,13,30,0) ],
+                var xy=resp["data"]
+
+                chart_data=[]
+
+                 for(l=0;l<xy.length;l++) {
+                 for(n=0;n<xy[l].length;n++)
+                  {
+
+                    if(parseInt(xy[l][n][3],10)!=0)
+
+                   { 
+                    var element=[]
+                  var dt=new Date(0,0,0,0,0,0)
+                  
+                  var labJob=+xy[l][n][0]+ +1
+                  element.push("Job"+ labJob)
+                  
+                  var indmach=xy[l][n][1].replace("Mach","")
+                  var labmach=+indmach+ +1
+                   element.push("M"+labmach);
+                   
+                   var dt1=new Date(0,0,0,0,0,0)                  
+                   var start=dt1.getSeconds() + parseInt(xy[l][n][2],10);
+                   dt1.setSeconds(start)
+                   element.push(dt1);
+                   
+                   var dt2=new Date(0,0,0,0,0,0)
+                   var end=parseInt(xy[l][n][3],10);
+                   dt2.setSeconds(start+end)
+                   element.push(dt2);
+                   chart_data.push(element);
+                 }
+                 }
+               }
+
+                    $("#opt_time").html(time)
+                     drawChart(chart_data)
             }
             });
             });
@@ -424,20 +416,43 @@
 		</div>
 	</div>
 </div>  
-<div id="table_modal" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">				
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"><span>&times;</span></button>
-      </div>
-      <div class="modal-body">
-				<h4>Result: </h4>	
+<h4>Result: </h4>	
 				<p>Temps optimal: <span id="opt_time"></span></p>
-				
-      <table id="res_data" border="2" style="width:100%"></table>
-      </div>
-    </div>
-  </div>
-</div>    
+				<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+<script>
+  google.charts.load("current", {packages:["timeline"]});
+            google.charts.setOnLoadCallback(drawChart);
+  function drawChart(datt) {
+
+    var ccc=[]
+    if(datt!=null)
+    ccc=datt
+  alert(ccc)
+var chartwidth = $('#chartt').width;
+    var container = document.getElementById('chartt');
+    var chart = new google.visualization.Timeline(container);
+    var dataTable = new google.visualization.DataTable();
+    dataTable.addColumn({ type: 'string', id: 'Room' });
+    dataTable.addColumn({ type: 'string', id: 'Name' });
+    dataTable.addColumn({ type: 'date', id: 'Start' });
+    dataTable.addColumn({ type: 'date', id: 'End' });
+    dataTable.addRows(ccc);
+
+    var options = {
+     width: chartwidth,
+      timeline: { colorByRowLabel: false}
+    };
+
+    chart.draw(dataTable, options);
+  }
+
+</script>
+     
+
+
+    
+<div id="chart_wrapper">
+<div id="chartt" ></div>   
 </body>
 </html>

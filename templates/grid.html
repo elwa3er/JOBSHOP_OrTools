@@ -448,6 +448,18 @@ var chartwidth = $('#chartt').width;
      width: chartwidth,
       timeline: { colorByRowLabel: false}
     };
+    google.visualization.events.addListener(chart, 'onmouseover', function (obj) {
+
+var startDate = dataTable.getValue(obj.row, 2);
+var endDate   = dataTable.getValue(obj.row, 3);
+var seconds = (startDate.getTime() - new Date(0,0,0,0,0,0).getTime()) / 1000;
+var timeDiff = Math.abs(startDate.getTime() - endDate.getTime());
+var diffDays = (timeDiff / (1000 * 3600 * 24)); 
+var ed=+seconds+ +timeDiff/1000
+var ht="<table width='100%'><tr><th scope='row'>Start</th><td>"+seconds+"</td></tr><tr><th scope='row'>End</th><td>"+ ed+"</td></tr><tr><th scope='row'>Duration</th><td>"+timeDiff/1000+"</td></tr></table>"
+
+$(".google-visualization-tooltip").html(ht);
+});
 
     chart.draw(dataTable, options);
   }

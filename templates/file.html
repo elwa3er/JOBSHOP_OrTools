@@ -91,10 +91,22 @@
    max-width:1200px;
   }
 }
+.google-visualization-tooltip{
+  position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+}
+.google-visualization-tooltip table{
+  padding: 5px 0;
+    /* Position the tooltip */
+    position: absolute;
+    display: block;
+    height: 100%;
+}
 #chart_wrapper {
   overflow-x: scroll;
   overflow-y: hidden;
-  width: 90%
+  width: 100%
 }
 #chartt {
  
@@ -458,7 +470,7 @@
             });
             empty_th.appendChild(btn);
             header.appendChild(empty_th);
-            alert(machines_number)
+            
             for(i=0;i<machines_number;i++)
             {
                 var aux=document.createElement("th");
@@ -534,7 +546,7 @@
     if(datt!=null)
     ccc=datt
   
-var chartwidth = $('#chartt').width;
+var chartwidth = $('#chart_wrapper').width;
     var container = document.getElementById('chartt');
     var chart = new google.visualization.Timeline(container);
     var dataTable = new google.visualization.DataTable();
@@ -548,6 +560,19 @@ var chartwidth = $('#chartt').width;
      width: chartwidth,
       timeline: { colorByRowLabel: false}
     };
+    google.visualization.events.addListener(chart, 'onmouseover', function (obj) {
+
+var startDate = dataTable.getValue(obj.row, 2);
+var endDate   = dataTable.getValue(obj.row, 3);
+var seconds = (startDate.getTime() - new Date(0,0,0,0,0,0).getTime()) / 1000;
+var timeDiff = Math.abs(startDate.getTime() - endDate.getTime());
+var diffDays = (timeDiff / (1000 * 3600 * 24)); 
+var ed=+seconds+ +timeDiff/1000
+var ht="<table width='100%'><tr><th scope='row'>Start</th><td>"+seconds+"</td></tr><tr><th scope='row'>End</th><td>"+ ed+"</td></tr><tr><th scope='row'>Duration</th><td>"+timeDiff/1000+"</td></tr></table>"
+
+$(".google-visualization-tooltip").html(ht);
+});
+
 
     chart.draw(dataTable, options);
   }

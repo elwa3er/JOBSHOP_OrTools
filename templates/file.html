@@ -58,10 +58,10 @@
             $('#msg').html('');
             $.each(response, function (key, data) {   
                     
-              if(key !== 'message' && key!=='Data' && key!=='longueur' ) {
+              if(key !== 'message' && key!=='Data' && key!=='longueur' && key!="mchnb" ) {
                 $('#msg').append(key + ' -> ' + data + '<br/>');
               } else {
-                if(key!=='Data' && key!=='longueur')
+                if(key!=='Data' && key!=='longueur' && key!="mchnb")
                 $('#msg').append(data + '<br/>');
 
               }
@@ -70,9 +70,9 @@
             
             if(response["message"]=="Fichier téléchargé avec succès")
             {
-              var longest=response["longueur"]
+              var longest=response["mchnb"]
               var data=response["Data"]
-              var lignes=data.length
+              var lignes=response["longueur"]
               fill_div(longest,lignes,data)
 
             }
@@ -330,9 +330,9 @@
 <body>
   <div class="topnav" id="myTopnav">
     <a href="{{url_for('home')}}">Home</a>
-    <a href="{{url_for('manual')}}" class="active">Manual input</a>
-    <a href="{{url_for('from_file')}}">Load from file</a>
-    <a id="about" href="#about">About</a>
+    <a href="{{url_for('manual')}}">Manual input</a>
+    <a href="{{url_for('from_file')}}"  class="active">Load from file</a>
+  
     <a href="javascript:void(0);" class="icon" onclick="myFunction()">
       <i class="fa fa-bars"></i>
     </a>
@@ -458,6 +458,7 @@
             });
             empty_th.appendChild(btn);
             header.appendChild(empty_th);
+            alert(machines_number)
             for(i=0;i<machines_number;i++)
             {
                 var aux=document.createElement("th");
@@ -517,9 +518,11 @@
 		</div>
 	</div>
 </div>  
-
-				<h4>Result: </h4>	
-				<p>Temps optimal: <span id="opt_time"></span></p>
+<div>
+  <h4>Result: </h4>	
+  <p>Temps optimal: <span id="opt_time"></span></p>
+</div>
+			
 				<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
 <script>

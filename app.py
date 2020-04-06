@@ -23,9 +23,13 @@ def longest(x):
             yield from longest(y)
 def read_txt(filename):
     l=[]
+    mch_nb=0
     
     with open(filename,'r') as f:
         f1=f.readlines()
+        for line_no, line in enumerate(open(filename)):
+            myIntegers = [int(x) for x in line.split()] 
+            mch_nb= len(myIntegers)
         f2=[]
         for line in f1:
             x=re.sub(' +', ' ',line)
@@ -34,7 +38,7 @@ def read_txt(filename):
         logst=max(longest(l))
         resp=all([c.replace(" ","").replace("\n","").isdigit() for c in f2])
         if resp==True:           
-            return logst,l
+            return logst,l,mch_nb
         else:
             return "Fichier non valide"
 
@@ -101,8 +105,9 @@ def from_file():
             resp = jsonify({"message":"Fichier téléchargé avec succès"})
             resp.status_code = 201
             if ".txt" in os.path.join(app.config['UPLOAD_FOLDER'], filename):
-                lgst,data=read_txt(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                return jsonify({"message":"Fichier téléchargé avec succès","longueur":lgst,"Data":data})
+                lgst,data,mch_nb=read_txt(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                
+                return jsonify({"message":"Fichier téléchargé avec succès","longueur":lgst,"Data":data,"mchnb":mch_nb})
 
         else:
             resp = jsonify(errors)

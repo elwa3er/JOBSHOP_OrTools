@@ -129,7 +129,7 @@ class JobShop:
                 output += sol_line
 
             # Finally print the solution found.
-            print('Optimal Schedule Length: %i' % solver.ObjectiveValue(),jobs_data)
+            
             #print(output)
             
             nb_job=len(jobs_data)
@@ -142,11 +142,5 @@ class JobShop:
                         o.append(aff[j])
                 ou.append(o)
             
-            print(ou)
+            print(jobs_data)
             return ou,solver.ObjectiveValue()
-
-
-
-
-
-

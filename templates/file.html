@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    
     <script>
       function createJSON(c,r) {
         jsonObj = [];        
@@ -21,16 +22,84 @@
         return jsonObj;
       }
       function getRandomColor() {
-      var letters = '0123456789ABCDEF';
-      var color = '#';
-      for (var i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)];
+        var letters = '0123456789ABCDEF';
+        var color = '#';
+        for (var i = 0; i < 6; i++) {
+          color += letters[Math.floor(Math.random() * 16)];
+        }
+        color='#'+(0x1000000+(Math.random())*0xffffff).toString(16).substr(1,6)
+        return color;
       }
-      color='#'+(0x1000000+(Math.random())*0xffffff).toString(16).substr(1,6)
-      return color;
-      }
+
+    </script>
+    <script>
+     $(document).ready(function (e) {
+      $('#upload').on('click', function () {
+        var form_data = new FormData();
+        var ins = document.getElementById('multiFiles').files.length;
+        
+        if(ins == 0) {
+          $('#msg').html('<span style="color:red">Select at least one file</span>');
+          return;
+        }
+        
+        for (var x = 0; x < ins; x++) {
+          form_data.append("files[]", document.getElementById('multiFiles').files[x]);
+        }
+        $.ajax({
+          url: 'http://127.0.0.1:5000/jobshop/From_File', // point to server-side URL
+          dataType: 'json', // what to expect back from server
+          cache: false,
+          contentType: false,
+          processData: false,
+          data: form_data,
+          type: 'post',
+          success: function (response) { // display success response
+            $('#msg').html('');
+            $.each(response, function (key, data) {   
+                    
+              if(key !== 'message' && key!=='Data' && key!=='longueur' ) {
+                $('#msg').append(key + ' -> ' + data + '<br/>');
+              } else {
+                if(key!=='Data' && key!=='longueur')
+                $('#msg').append(data + '<br/>');
+
+              }
+
+            })
+            
+            if(response["message"]=="Fichier téléchargé avec succès")
+            {
+              var longest=response["longueur"]
+              var data=response["Data"]
+              var lignes=data.length
+              fill_div(longest,lignes,data)
+
+            }
+          },
+          error: function (response) {
+            $('#msg').html(response.data); // display error response
+          }
+        });
+      })
+    })
     </script>
     <style>
+      @media (min-width: 768px) {
+  .modal-xl {
+    width: 100%;
+   max-width:1200px;
+  }
+}
+#chart_wrapper {
+  overflow-x: scroll;
+  overflow-y: hidden;
+  width: 90%
+}
+#chartt {
+ 
+  height: 300px
+}
       body {
         margin: 0;
         font-family: Arial, Helvetica, sans-serif;
@@ -262,20 +331,29 @@
     </a>
   </div>
   <div class="input">        
-        <label for="inputX">Number of machines:</label>
+        <!--<label for="inputX">Number of machines:</label>
         <input type="number" name="enter" class="enter" value="" id="inputX"/><br>
         <label for="inputY">Number of jobs:</label>
         <input type="number" name="enter" class="enter" value="" id="inputY"/><br>
-        <button id='goBtn' onclick="fill_div(2,2)">click</button>       
+        <button id='goBtn' onclick="fill_div(2,2)">click</button>-->
+      <dl>
+    <p>
+      <p id="msg"></p>
+      <input type="file" id="multiFiles" name="files[]" multiple="multiple"/>
+      <button id="upload">Upload</button>
+    </p>
+  </dl>
+
+
   </div>   
   <div id="data">
       <table id="input_data" style="width:100%"></table>
   </div>
   <br> 
   <script>
-    function fill_div(c,r) {
-      var machines_number=$("#inputX").val();
-        var jobs_number=$("#inputY").val(); 
+    function fill_div(columns,ro,records) {
+      var machines_number=columns;
+        var jobs_number=ro; 
         
         if(machines_number=="" || jobs_number=="")  
         {
@@ -305,6 +383,10 @@
               if(cols[j].innerHTML!="" && cols[j].innerHTML!="0"){
                 array1.push(cols[j].innerHTML);
               }
+              else
+              {
+                array1.push(0)
+              }
             }
             array.push(array1)
           }
@@ -317,55 +399,54 @@
             data: JSON.stringify(infos),
             success: function(resp){
               var time=resp["time"]
-              var tbl1=document.getElementById("res_data");
-              while(tbl1.hasChildNodes()) {
-                tbl1.removeChild(tbl1.firstChild);
-              }
-              for(i=0;i<+jobs_number+ +1;i++) {
-                var tr=document.createElement("tr");
-                var th=document.createElement("th");
-                th.setAttribute("scope","row");
-                if(i>0) {
-                  th.innerHTML="Job "+i;
-                }
-                tr.appendChild(th);
-                for(j=0;j<time;j++) {
-                  var td=document.createElement("td");
-                  if(i==0) {
-                    td.setAttribute("class","ff")
-                    td.innerHTML=j
-                  }
-                  tr.appendChild(td);
-                }
-                tbl1.appendChild(tr);
+                           
+             
+                //[ 'Magnolia Room', 'Beginning JavaScript',       new Date(0,0,0,12,0,0),  new Date(0,0,0,13,30,0) ],
+                var xy=resp["data"]
+
+                chart_data=[]
+
+                 for(l=0;l<xy.length;l++) {
+                 for(n=0;n<xy[l].length;n++)
+                  {
+
+                    if(parseInt(xy[l][n][3],10)!=0)
+
+                   { 
+                    var element=[]
+                  var dt=new Date(0,0,0,0,0,0)
+                  
+                  var labJob=+xy[l][n][0]+ +1
+                  element.push("Job"+ labJob)
+                  
+                  var indmach=xy[l][n][1].replace("Mach","")
+                  var labmach=+indmach+ +1
+                   element.push("M"+labmach);
+                   
+                   var dt1=new Date(0,0,0,0,0,0)                  
+                   var start=dt1.getSeconds() + parseInt(xy[l][n][2],10);
+                   dt1.setSeconds(start)
+                   element.push(dt1);
+                   
+                   var dt2=new Date(0,0,0,0,0,0)
+                   var end=parseInt(xy[l][n][3],10);
+                   dt2.setSeconds(start+end)
+                   element.push(dt2);
+                   chart_data.push(element);
+                 }
+                 }
+               }
+
+                    $("#opt_time").html(time)
+                     drawChart(chart_data)
+            $("#table_modal").modal();            
+           
+                 
+                 
+               
+                
             }
-            var rows1 = document.getElementById("res_data").getElementsByTagName("tr");
-            var couleurs=[];
-            for(c=0;c<machines_number;c++)
-            {
-              var cc=getRandomColor();
-              couleurs.push(cc)
-            }
-            for(var i = 0; i < rows1.length; i++) {
-              if (i>0)
-              {
-                var x=resp["data"][i-1]
-                var eff=0
-                for(l=0;l<x.length;l++) {
-                  var cols=rows1[i].getElementsByTagName("td")
-                  var start=x[l][2];
-                  var duration=x[l][3];
-                  var mach=x[l][1];
-                  var mch=parseInt(mach.replace("Mach",""),10)
-                  for(k=start-eff;k<start+duration;k++) {
-                    cols[k].style.backgroundColor=couleurs[mch]
-                  }
-                }
-              }
-            }
-            $("#opt_time").html(time)
-            $("#table_modal").modal();
-            }
+          
             });
             });
             empty_th.appendChild(btn);
@@ -387,9 +468,14 @@
                 var k=i+1;
                 th.innerHTML="Job "+k;
                 tr.appendChild(th);
+                tm_values=records[i]
                 for(j=0;j<machines_number;j++)
                 {
                     var td=document.createElement("td");
+                    if(j<tm_values.length)
+                    {
+                      td.innerHTML=tm_values[j]
+                    }
                     tr.appendChild(td);
                 }
                 tbl.appendChild(tr);
@@ -424,8 +510,8 @@
 		</div>
 	</div>
 </div>  
-<div id="table_modal" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
+<div id="table_modal" class="modal fade bd-example-modal-lg" tabindex="-1" role="document" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog  modal-xl">
     <div class="modal-content">
       <div class="modal-header">				
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"><span>&times;</span></button>
@@ -433,11 +519,45 @@
       <div class="modal-body">
 				<h4>Result: </h4>	
 				<p>Temps optimal: <span id="opt_time"></span></p>
-				
-      <table id="res_data" border="2" style="width:100%"></table>
+				<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+<script>
+  google.charts.load("current", {packages:["timeline"]});
+            google.charts.setOnLoadCallback(drawChart);
+  function drawChart(datt) {
+
+    var ccc=[]
+    if(datt!=null)
+    ccc=datt
+  alert(ccc)
+var chartwidth = $('#chartt').width;
+    var container = document.getElementById('chartt');
+    var chart = new google.visualization.Timeline(container);
+    var dataTable = new google.visualization.DataTable();
+    dataTable.addColumn({ type: 'string', id: 'Room' });
+    dataTable.addColumn({ type: 'string', id: 'Name' });
+    dataTable.addColumn({ type: 'date', id: 'Start' });
+    dataTable.addColumn({ type: 'date', id: 'End' });
+    dataTable.addRows(ccc);
+
+    var options = {
+     width: chartwidth,
+      timeline: { colorByRowLabel: false}
+    };
+
+    chart.draw(dataTable, options);
+  }
+
+</script>
+     
+
+
       </div>
     </div>
   </div>
-</div>    
+</div> 
+<div id="chart_wrapper">
+<div id="chartt" ></div>
+</div>   
 </body>
 </html>
